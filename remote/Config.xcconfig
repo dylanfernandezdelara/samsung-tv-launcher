@@ -1,0 +1,4 @@
+// Defaults. Copy Local.example.xcconfig to Local.xcconfig and set your own team and bundle id.
+PRODUCT_BUNDLE_IDENTIFIER = com.example.tvremote
+DEVELOPMENT_TEAM =
+#include? "Local.xcconfig"

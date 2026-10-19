@@ -1,0 +1,33 @@
+# iPhone remote for the launcher. Generate the Xcode project with `xcodegen` (brew install xcodegen),
+# then open TVRemote.xcodeproj. Your team and bundle id go in Local.xcconfig (gitignored).
+name: TVRemote
+options:
+  deploymentTarget:
+    iOS: "17.0"
+configFiles:
+  Debug: Config.xcconfig
+  Release: Config.xcconfig
+targets:
+  TVRemote:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    settings:
+      base:
+        SWIFT_VERSION: "5"
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: TV Remote
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Talks to your TV on this Wi-Fi.
+        CODE_SIGN_STYLE: Automatic
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+    info:
+      path: Sources/Info.plist
+      properties:
+        ITSAppUsesNonExemptEncryption: false   # only standard TLS
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true

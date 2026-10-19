@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, height=1080, user-scalable=no">
+  <title>Launcher</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <div id="art"><div class="wp"></div><div class="wp"></div></div>
+    <div id="scrim"></div>
+
+    <header id="clock" class="pill">
+      <span id="wx"></span><span class="sep"></span><span id="date"></span><span class="sep"></span><span id="time"></span>
+    </header>
+
+    <section id="home">
+      <div id="dock">
+        <div class="platter"><canvas class="frost"></canvas><canvas class="frost"></canvas><span class="tint"></span></div>
+        <ul id="row"></ul>
+      </div>
+    </section>
+
+    <div id="toast" class="pill"></div>
+    <div id="veil"></div>
+  </div>
+
+  <!-- optional files: missing ones are simply skipped -->
+  <script src="wallpapers/list.js"></script>
+  <script src="config.js"></script>
+  <script src="config.local.js"></script>
+  <script src="art.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

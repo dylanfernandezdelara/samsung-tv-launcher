@@ -1,0 +1,22 @@
+{
+  "name": "samsung-tv-launcher",
+  "version": "1.0.0",
+  "description": "A fast, minimal home screen for Samsung (Tizen) TVs, installed with Samsung's own developer mode.",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "find-tv": "node tools/find-tv.js",
+    "pair": "node tools/tv.js",
+    "key": "node tools/tv.js",
+    "apps": "node tools/apps.js",
+    "logos": "node scripts/fetch-logos.js",
+    "wallpapers": "node scripts/prepare-wallpapers.js",
+    "deploy": "bash tools/deploy.sh",
+    "debug": "bash tools/debug.sh",
+    "test-tv": "node tools/tv-test.js",
+    "preview": "python3 -m http.server 4173 --directory launcher"
+  },
+  "dependencies": {
+    "ws": "8.22.0"
+  }
+}

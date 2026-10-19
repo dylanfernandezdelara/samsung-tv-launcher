@@ -1,0 +1,274 @@
+/* Performance rules: only transform and opacity ever animate; no live blur filters; nothing
+   repaints full-screen on navigation. Glass is translucent layers plus edge highlights. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --spring: cubic-bezier(0.22, 1.32, 0.42, 1);   /* slight overshoot, like a tvOS focus lift */
+  --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --radius: 18px;
+  --font: "SamsungOneUI", "SamsungOne", "TizenSans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #05060a;
+  color: #fff;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+#stage {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  transform-origin: 0 0;
+  background: #05060a;
+}
+
+/* ---------- wallpaper ---------- */
+#art { position: absolute; inset: 0; }
+.wp {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1600ms var(--ease);
+  will-change: opacity;
+}
+.wp.on { opacity: 1; }
+.wp.prep, .frost.prep { opacity: 0.01; transition: none; }
+.wp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* keeps the clock and dock readable on bright wallpapers */
+#scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0) 22%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.38) 100%);
+}
+
+/* ---------- glass ---------- */
+.pill {
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(40, 40, 46, 0.62) 0%, rgba(24, 24, 28, 0.62) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+/* ---------- clock (top-right pill) ---------- */
+#clock {
+  position: absolute;
+  top: 56px;
+  right: 80px;
+  height: 52px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+#date { color: rgba(255, 255, 255, 0.72); font-weight: 500; }
+#wx { display: flex; align-items: center; gap: 8px; }
+#wx svg { width: 26px; height: 26px; }
+#wx:empty, #wx:empty + .sep { display: none; }
+#clock .sep { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.45); }
+
+/* ---------- dock ---------- */
+#home {
+  position: absolute;
+  left: 0; right: 0;
+  top: 800px;
+}
+/* Dock geometry (concentric): a focused tile grows by (scale - 1) / 2 of its size on each
+   side, so padding = growth + clearance gives an equal 18px gap on every side when focused,
+   and the platter radius = focused tile radius (18 x 1.12) + clearance, so corners run
+   parallel instead of pinching. */
+#dock {
+  position: relative;
+  width: max-content;
+  margin: 0 auto;
+  padding: 26px 31px;      /* 130 x 0.06 + 18, 216 x 0.06 + 18 */
+}
+.platter {
+  position: absolute;
+  inset: 0;
+  border-radius: 38px;     /* 20 + 18; DOCK_RADIUS in main.js */
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+/* frost canvases are drawn at the dock's size with rounded corners baked in (main.js) */
+.frost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1600ms var(--ease);
+}
+.frost.on { opacity: 1; }
+.platter .tint {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.22),
+    inset 0 2px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.10);
+}
+
+#row {
+  position: relative;
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.tile {
+  position: relative;
+  width: 216px;
+  height: 130px;
+}
+/* Tiles are drawn at their focused size (216 x 1.12 = 242, 130 x 1.12 = 146) and shrunk when
+   unfocused. The GPU keeps the layer at the size it was drawn, so drawing at focused size
+   makes the focused tile pixel-perfect instead of a stretched snapshot. */
+.lift {
+  position: absolute;
+  left: -13px; top: -8px;
+  width: 242px; height: 146px;
+  transform: scale(0.8926);   /* 216 / 242 */
+  transition: transform 380ms var(--spring);
+  will-change: transform;
+}
+/* pre-drawn soft shadow: a gradient, not a blur filter */
+.shadow {
+  position: absolute;
+  left: -6%; right: -6%;
+  top: 22%; bottom: -26%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+  opacity: 0;
+  transition: opacity 300ms var(--ease);
+}
+.face {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;        /* reads as 18px unfocused, 20px focused */
+  overflow: hidden;
+  background: #22242b;
+  transform: perspective(900px) rotateX(0deg) rotateY(0deg);
+  will-change: transform;
+}
+.face .art, .face img, .face canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.face img { object-fit: cover; }
+.face .mark { right: auto; bottom: auto; }
+.face .fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 700;
+}
+/* moving specular highlight */
+.gloss {
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 70%);
+  opacity: 0;
+  transform: translate(-28%, -34%);
+  transition: opacity 300ms var(--ease);
+  pointer-events: none;
+}
+/* rim light: always faintly there (glass edge), brighter on focus; only opacity changes */
+.rim {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.24), inset 0 2px 0 rgba(255, 255, 255, 0.36);
+  opacity: 0.45;
+  transition: opacity 300ms var(--ease);
+  pointer-events: none;
+}
+.dim {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0.14;
+  transition: opacity 300ms var(--ease);
+  pointer-events: none;
+}
+
+/* focused */
+.tile.focus { z-index: 2; }
+.tile.focus .lift { transform: scale(1); }
+.tile.focus .shadow { opacity: 1; }
+.tile.focus .gloss { opacity: 1; }
+.tile.focus .rim { opacity: 1; }
+.tile.focus .dim { opacity: 0; }
+
+/* idle: once focus rests, the tile gently floats and its highlight drifts */
+.tile.focus.rest .face { animation: float 7s ease-in-out infinite; }
+.tile.focus.rest .gloss { animation: drift 7s ease-in-out infinite; }
+@keyframes float {
+  0%, 100% { transform: perspective(900px) rotateX(0deg) rotateY(0deg); }
+  25% { transform: perspective(900px) rotateX(2.2deg) rotateY(-3deg); }
+  50% { transform: perspective(900px) rotateX(-1.6deg) rotateY(2.6deg); }
+  75% { transform: perspective(900px) rotateX(1.4deg) rotateY(1.8deg); }
+}
+@keyframes drift {
+  0%, 100% { transform: translate(-28%, -34%); }
+  25% { transform: translate(-12%, -40%); }
+  50% { transform: translate(-40%, -22%); }
+  75% { transform: translate(-20%, -28%); }
+}
+
+/* press */
+.tile.focus.press .lift { transform: scale(0.94); transition-duration: 120ms; }
+
+.tile.missing .face { opacity: 0.4; }
+
+/* entrance: tiles rise in, staggered */
+.tile.enter { opacity: 0; transform: translateY(26px); }
+.tile { transition: opacity 500ms var(--ease), transform 600ms var(--spring); }
+
+/* ---------- toast & veil ---------- */
+#toast {
+  position: absolute;
+  left: 50%;
+  top: 56px;
+  padding: 15px 28px;
+  font-size: 24px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translate(-50%, -12px);
+  transition: opacity 240ms var(--ease), transform 380ms var(--spring);
+}
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+#veil {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease);
+}
+#veil.open { opacity: 0; }
+#veil.quick { transition-duration: 220ms; }

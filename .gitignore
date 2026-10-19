@@ -1,0 +1,35 @@
+# Personal, never commit
+tv.json
+tv-token.json
+launcher/config.local.js
+*.p12
+*.pri
+*.crt
+*.csr
+author.*
+distributor.*
+.env
+
+# Fetched to your machine (trademarks / third-party art), not distributed
+launcher/img/
+launcher/wallpapers/
+wallpapers-src/
+
+# Build and dev output (incl. TV screenshots from tv-debug.js)
+/*.png
+node_modules/
+build/
+*.wgt
+captures/
+takes/
+shots/
+before/
+preview/
+video/
+.claude/
+.DS_Store
+
+# iPhone remote: personal signing + generated project
+remote/Local.xcconfig
+remote/TVRemote.xcodeproj/
+remote/Sources/Info.plist
