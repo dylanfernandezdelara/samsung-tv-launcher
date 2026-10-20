@@ -17,21 +17,24 @@ Built with [Claude Code](https://claude.com/claude-code). Samsung is more locked
 ## What you need
 
 - A Samsung TV running Tizen (built on a 2026 model; 2017 and newer should work but are untested)
-- A Mac (Linux and Windows work with the matching Tizen tools) on the same Wi-Fi as the TV
+- A Mac or Linux computer (Windows: use WSL) on the same Wi-Fi as the TV
 - A free Samsung account, for the signing certificate
 - About 30 minutes. Optional: an iPhone for the phone remote
 
 ## The fastest way: let your agent do it
 
 1. Put your TV and your computer on the **same Wi-Fi**.
-2. Clone this repo and open it in Claude Code (or any coding agent).
-3. Say: **"Follow AGENTS.md and install this launcher on my Samsung TV."**
+2. Tell Claude Code (or any coding agent):
+   ```text
+   Follow AGENTS.md in https://github.com/dylanfernandezdelara/samsung-tv-launcher
+   and install this launcher on my Samsung TV.
+   ```
 
 The agent drives the TV over Wi-Fi. You'll only need to: press **Allow** on the TV once, sign in to your **Samsung account** for the certificate, **unplug the TV** once, and say which apps you want.
 
 ## Doing it yourself
 
-Steps are for macOS; Linux and Windows work with the matching Tizen Studio installer.
+Steps are for macOS; Linux works the same with the Linux Tizen installer (Windows: use WSL). `npm run doctor` shows which steps are done.
 
 **1. Get the tools**
 - Node.js 18+, then `npm install`
@@ -85,7 +88,7 @@ Samsung keeps Home and Back for itself, and an app can't replace its home screen
 If your TV has **Settings → General & Privacy → Start Screen Option → Autorun Last App**, turn it on too.
 
 **9. Phone remote (optional, iPhone)**
-`remote/` is a small iPhone app: arrows, OK, Back, volume, mute, power (Wake-on-LAN when the TV is fully asleep), next wallpaper, and a keyboard for text boxes that use the TV's own keyboard. Its **Home** opens the launcher directly, so Samsung's home never shows at all. Needs Xcode and an Apple developer account:
+`remote/` is a small iPhone app: arrows, OK, Back, volume, mute, power (Wake-on-LAN when the TV is fully asleep), next wallpaper, and a keyboard for text boxes that use the TV's own keyboard. Its **Home** opens the launcher directly, so Samsung's home never shows at all. Needs Xcode and an Apple ID (a free one works, but the app then expires after 7 days):
 ```bash
 brew install xcodegen
 cd remote && cp Local.example.xcconfig Local.xcconfig   # your team id and bundle id

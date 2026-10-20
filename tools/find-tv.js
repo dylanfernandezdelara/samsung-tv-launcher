@@ -60,5 +60,7 @@ function subnets() {
   try { file = JSON.parse(fs.readFileSync(OUT, 'utf8')); } catch (e) {}
   fs.writeFileSync(OUT, JSON.stringify({ ...file, ip: tv.ip }, null, 2) + '\n');
   console.log(`Saved ${tv.ip} to tv.json${found.length > 1 ? ' (edit it to pick another)' : ''}.`);
-  if (nets.length) console.log(`This computer's IP (for the TV's Developer Mode "Host PC IP"): ${nets.map((n) => n.mine).join(' or ')}`);
+  // the address on the TV's own network is the one to type into Developer Mode
+  const host = nets.filter((n) => tv.ip.startsWith(n.base + '.')).map((n) => n.mine);
+  if (host.length || nets.length) console.log(`This computer's IP (for the TV's Developer Mode "Host PC IP"): ${(host.length ? host : nets.map((n) => n.mine)).join(' or ')}`);
 })();

@@ -1,11 +1,14 @@
 // Shared settings for the tools. Your TV's address lives in tv.json at the repo root (gitignored,
 // written by `npm run find-tv`) or in the TV_IP environment variable.
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const TIZEN = path.join(process.env.HOME, 'tizen-studio/tools/ide/bin/tizen');
-const SDB = path.join(process.env.HOME, 'tizen-studio/tools/sdb');
+// Tizen Studio lives in ~/tizen-studio unless TIZEN_STUDIO points elsewhere
+const STUDIO = process.env.TIZEN_STUDIO || path.join(os.homedir(), 'tizen-studio');
+const TIZEN = path.join(STUDIO, 'tools/ide/bin/tizen');
+const SDB = path.join(STUDIO, 'tools/sdb');
 
 function settings() {
   let file = {};

@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "find-tv": "node tools/find-tv.js",
+    "doctor": "node tools/doctor.js",
     "pair": "node tools/tv.js",
     "key": "node tools/tv.js",
     "apps": "node tools/apps.js",
