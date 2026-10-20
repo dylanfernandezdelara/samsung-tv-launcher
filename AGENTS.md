@@ -20,14 +20,14 @@ Check: `tv.json` has an IP. If nothing is found, ask the person to turn the TV o
 Check: `tv-token.json` exists.
 
 **3. Developer Mode.** Ask the person to open **Apps → App Settings** on the TV (the settings page inside Apps, not the main Settings menu) **(person)**. Then send `npm run key -- KEY_1 KEY_2 KEY_3 KEY_4 KEY_5`.
-A "Developer Mode" pop-up should open. The person switches it **On**; you can type the computer's IP (printed by find-tv) with `npm run key -- KEY_1 KEY_9 KEY_2` etc., using `KEY_RIGHT` between the four boxes. Then OK.
+A "Developer Mode" pop-up should open. The person switches it **On**; you can type the computer's IP (printed by find-tv) with `npm run key -- KEY_1 KEY_9 KEY_2` etc., using `KEY_RIGHT` between the four boxes (some firmware jumps ahead on its own after 3 digits). `KEY_ENTER` toggles the switch and presses OK.
 Check: `curl -s http://<tv-ip>:8001/api/v2/` shows `"developerMode":"1"` and the right `developerIP`.
 If the pop-up doesn't open: confirm they're on the App Settings page; try again with slower keys (`KEY_DELAY_MS=1200 npm run key -- ...`).
 
 **4. Full restart.** **(person: unplug the TV for 60 seconds, then turn it on.)** The power button only sleeps it.
 Check: `nc -z <tv-ip> 26101` succeeds. If not, it wasn't a full restart.
 
-**5. Tizen tools.** Need `~/tizen-studio/tools/sdb` and `~/tizen-studio/tools/ide/bin/tizen`. If missing, install the Tizen Studio CLI (on Apple Silicon, Rosetta first) and the Samsung extensions; commands are in README step 1.
+**5. Tizen tools.** Need `~/tizen-studio/tools/sdb` and `~/tizen-studio/tools/ide/bin/tizen`. If missing, ask first (about 1–2 GB, ~10 min), then install the Tizen Studio CLI (on Apple Silicon, Rosetta first) and the Samsung extensions; commands are in README step 1. Linux/Windows: same tools under the Tizen Studio install folder (`sdb.exe`, `tizen.bat`).
 Check: `~/tizen-studio/tools/sdb connect <tv-ip>` then `~/tizen-studio/tools/sdb devices` lists the TV.
 
 **6. Certificate.** Open `~/tizen-studio/tools/certificate-manager/Certificate-manager.app` for the person: **+ → Samsung → TV**, profile name **tv**, Samsung account sign-in, distributor privilege **Public**, TV id auto-filled **(person)**.
@@ -38,7 +38,7 @@ Check: `~/tizen-studio/tools/ide/bin/tizen security-profiles list` shows `tv`.
 **8. Assets (optional, ask first).** `npm run logos` for the default apps' logos. For other apps, use the app's own icon (`image: 'icon', fit: 'cover'`) or a drawn tile. Wallpapers: the person drops images in `wallpapers-src/`, then `npm run wallpapers`; otherwise built-in gradients are used.
 
 **9. Install.** `npm run deploy`.
-Check: the launcher appears on the TV. For a closer look: `npm run debug`, then `node tools/tv-debug.js shot shot.png` and look at the screenshot.
+Check: `curl -s http://<tv-ip>:8001/api/v2/applications/TVLauncher.Launcher` shows `"running":true` and `"visible":true`. For a closer look: `npm run debug`, then `node tools/tv-debug.js shot shot.png` and look at the screenshot.
 
 **10. Verify.** `npm run test-tv` (after `npm run debug`). Expect all key checks to PASS and ~0 janky frames.
 

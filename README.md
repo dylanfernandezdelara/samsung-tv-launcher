@@ -2,9 +2,9 @@
 
 A fast, minimal home screen for Samsung TVs: your apps in one row, art on the wall, no ads.
 
-![Samsung's home vs. this launcher](docs/demo.png)
+![The launcher on a Samsung TV](docs/demo.jpg)
 
-[Watch the 7-second demo](docs/demo.mp4)
+[Watch the 20-second demo](docs/demo.mp4): Samsung's home, then power on straight into this launcher.
 
 - **Just your apps.** One row of big tiles, including a tile that switches to an HDMI input (e.g. a PS5).
 - **Always comes back.** Leave an app or turn the TV on, and you're back on the launcher, not Samsung's home.
@@ -13,6 +13,13 @@ A fast, minimal home screen for Samsung TVs: your apps in one row, art on the wa
 - **Nothing hacked.** It's a normal Tizen web app, installed with Samsung's own developer mode and your own Samsung signing certificate. Uninstall it any time (see below).
 
 Built with [Claude Code](https://claude.com/claude-code). Samsung is more locked down than Android TV (no sideloading), so most of the work was figuring out the steps below.
+
+## What you need
+
+- A Samsung TV running Tizen (built on a 2026 model; 2017 and newer should work but are untested)
+- A Mac (Linux and Windows work with the matching Tizen tools) on the same Wi-Fi as the TV
+- A free Samsung account, for the signing certificate
+- About 30 minutes. Optional: an iPhone for the phone remote
 
 ## The fastest way: let your agent do it
 
@@ -24,7 +31,7 @@ The agent drives the TV over Wi-Fi. You'll only need to: press **Allow** on the 
 
 ## Doing it yourself
 
-Works on Samsung TVs running Tizen (2017 and newer; built on a 2026 model). Steps are for macOS; Linux and Windows work with the matching Tizen Studio installer.
+Steps are for macOS; Linux and Windows work with the matching Tizen Studio installer.
 
 **1. Get the tools**
 - Node.js 18+, then `npm install`
@@ -84,7 +91,9 @@ brew install xcodegen
 cd remote && cp Local.example.xcconfig Local.xcconfig   # your team id and bundle id
 xcodegen && open TVRemote.xcodeproj                      # run it on your iPhone
 ```
-Enter the TV's IP in the app and press **Allow** on the TV once. No Xcode? A Shortcut covers Home alone: "Get Contents of URL", method POST, `http://<tv-ip>:8001/api/v2/applications/TVLauncher.Launcher`.
+Enter the TV's IP in the app and press **Allow** on the TV once.
+
+**No Xcode?** An iPhone Shortcut covers the one thing the TV's own remote can't do, going home without Samsung's home showing: add **Get Contents of URL** with `http://<tv-ip>:8001/api/v2/applications/TVLauncher.Launcher`, method **POST**, then put it on your Lock Screen, Action Button or Back Tap. Give the TV a fixed IP in your router first.
 
 ## Make it yours
 
@@ -102,7 +111,7 @@ Redeploy with `npm run deploy` after any change.
 ## Undo
 
 - Remove the launcher: TV **Apps → App Settings → Launcher → Delete**, or `~/tizen-studio/tools/ide/bin/tizen uninstall -p TVLauncher -s <tv-ip>:26101`.
-- Turn off Developer Mode the same way you turned it on (Apps → App Settings → 12345 → Off), then restart the TV.
+- Turn off Developer Mode the same way you turned it on (Apps → App Settings → 12345 → Off), then restart the TV. While it's on, the TV accepts app installs from your computer's IP.
 
 ## Under the hood
 
@@ -125,6 +134,7 @@ Things we learned the hard way:
 ## Known limitations
 
 - Tested on one 2026 Samsung model (Tizen 10). Older TVs should work but haven't been tested.
+- Samsung's local API (port 8001) has no login: anything on your Wi-Fi can open apps on the TV. That's Samsung's design, not something this project adds. The phone remote pins the TV's certificate on first use and keeps its pairing token in the iPhone Keychain.
 - Samsung's home (on leaving an app) and the TV's last input (at power-on) still flash briefly; only the phone remote's Home skips them entirely. Retail TVs give apps no way to replace Samsung's home.
 - Apps with their own on-screen keyboard (YouTube, Netflix) ignore typing from the phone; use the arrows there.
 - HDMI switching uses Samsung's TV Window API; if your model lacks it, the tile shows an error.
