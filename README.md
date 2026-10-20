@@ -1,40 +1,37 @@
 # Samsung TV Launcher
 
-A fast, minimal home screen for Samsung TVs: your apps in one row, art on the wall, no ads.
+This is a replacement home screen for Samsung TVs. It shows the apps you choose in one row, with a clock and a wallpaper, and nothing else.
 
 ![The launcher on a Samsung TV](docs/demo.jpg)
 
-[Watch the 20-second demo](docs/demo.mp4): Samsung's home, then power on straight into this launcher.
+There's a [20-second video](docs/demo.mp4) of it in use.
 
-- **Just your apps.** One row of big tiles, including a tile that switches to an HDMI input (e.g. a PS5).
-- **Always comes back.** Leave an app or turn the TV on, and you're back on the launcher, not Samsung's home.
-- **Fast.** Plain HTML/CSS/JS, GPU-only animations, no framework. Runs at 60 fps on the TV (check yours with `npm run test-tv`).
-- **Yours.** Pick the apps, logos, wallpapers and weather location in one config file.
-- **Nothing hacked.** It's a normal Tizen web app, installed with Samsung's own developer mode and your own Samsung signing certificate. Uninstall it any time (see below).
+Samsung TVs run Tizen. On Android TV you can install a different launcher. Tizen doesn't allow that, so this launcher is a regular Tizen web app instead. You install it with Samsung's Developer Mode and sign it with your own Samsung certificate. You can delete it like any other app.
 
-Built with [Claude Code](https://claude.com/claude-code). Samsung is more locked down than Android TV (no sideloading), so most of the work was figuring out the steps below.
+Samsung doesn't let apps replace its home screen. So the launcher keeps running in the background. When you leave an app or turn on the TV, it opens itself again. One tile can also switch to an HDMI input. I use that for my PS5.
+
+I built it with [Claude Code](https://claude.com/claude-code). The setup steps are written so that an agent can do most of the work.
 
 ## What you need
 
-- A Samsung TV running Tizen (built on a 2026 model; 2017 and newer should work but are untested)
-- A Mac or Linux computer (Windows: use WSL) on the same Wi-Fi as the TV
-- A free Samsung account, for the signing certificate
-- About 30 minutes. Optional: an iPhone for the phone remote
+You need a Samsung TV that runs Tizen. I only tested it on my 2026 model. TVs from 2017 or later should work.
 
-## The fastest way: let your agent do it
+You also need a Mac or Linux computer on the same Wi-Fi as the TV. On Windows, use WSL. You need a free Samsung account for the signing certificate. Setup takes about 30 minutes. The phone remote needs an iPhone.
 
-1. Put your TV and your computer on the **same Wi-Fi**.
-2. Tell Claude Code (or any coding agent):
-   ```text
-   Follow AGENTS.md in https://github.com/dylanfernandezdelara/samsung-tv-launcher
-   and install this launcher on my Samsung TV.
-   ```
+## Setting it up with an agent
 
-The agent drives the TV over Wi-Fi. You'll only need to: press **Allow** on the TV once, sign in to your **Samsung account** for the certificate, **unplug the TV** once, and say which apps you want.
+Connect your TV and your computer to the same Wi-Fi. Then give Claude Code or another coding agent this prompt:
 
-## Doing it yourself
+```text
+Follow AGENTS.md in https://github.com/dylanfernandezdelara/samsung-tv-launcher
+and install this launcher on my Samsung TV.
+```
 
-Steps are for macOS; Linux works the same with the Linux Tizen installer (Windows: use WSL). `npm run doctor` shows which steps are done.
+The agent controls the TV over Wi-Fi. You only need to press Allow on the TV once, sign in to your Samsung account, unplug the TV once, and choose your apps.
+
+## Setting it up yourself
+
+These steps are for macOS. Linux is the same, with the Linux Tizen installer. On Windows, use WSL. Run `npm run doctor` at any time to see which steps are done.
 
 **1. Get the tools**
 - Node.js 18+, then `npm install`
@@ -51,98 +48,96 @@ Steps are for macOS; Linux works the same with the Linux Tizen installer (Window
 ```bash
 npm run find-tv
 ```
-Saves the TV's address to `tv.json` and prints your computer's IP (you need it in step 3).
+This saves the TV's address to `tv.json`. It also prints your computer's IP, which you need in step 3.
 
 **3. Turn on Developer Mode**
-On the TV: **Apps → App Settings** (the settings page *inside* Apps), then type **1 2 3 4 5**. In the pop-up, switch **Developer mode** on, enter your computer's IP, press OK.
-No number buttons on your remote? Send them over Wi-Fi (the TV asks you to **Allow** the first time):
+On the TV, go to **Apps → App Settings**. This is the settings page inside Apps. Type **1 2 3 4 5**. In the pop-up, turn **Developer mode** on, enter your computer's IP, and press OK.
+
+If your remote has no number buttons, send them over Wi-Fi. The TV asks you to press **Allow** the first time.
 ```bash
 npm run key -- KEY_1 KEY_2 KEY_3 KEY_4 KEY_5
 ```
-For the IP field, send digits the same way and `KEY_RIGHT` to move between the four boxes.
+Send the IP digits the same way. Use `KEY_RIGHT` to move to the next box.
 
-**4. Restart the TV for real**
-Pressing power only puts it to sleep. **Unplug it for 60 seconds**, then turn it back on. Developer mode starts listening only after a full restart.
+**4. Restart the TV**
+The power button only puts the TV to sleep. Unplug it for 60 seconds, then turn it on again. Developer Mode only starts after a full restart.
 
 **5. Make your certificate**
-Open `~/tizen-studio/tools/certificate-manager/Certificate-manager.app`, click **+**, choose **Samsung → TV**, name the profile **tv**, and sign in with your Samsung account. Pick **Public** for the distributor certificate; your TV's ID is filled in automatically. Keep the certificate and its password private and backed up.
+Open `~/tizen-studio/tools/certificate-manager/Certificate-manager.app`. Click **+**, choose **Samsung → TV**, and name the profile **tv**. Sign in with your Samsung account. For the distributor certificate, choose **Public**. The app fills in your TV's ID. Keep the certificate and its password private, and back them up.
 
 **6. Get logos and wallpapers (optional)**
 ```bash
 npm run logos        # official app logos from Wikimedia Commons, into launcher/img/
 npm run wallpapers   # resizes any images you put in wallpapers-src/
 ```
-Without them you get drawn tiles and soft gradient wallpapers. The demo uses the [1984 Macintosh wallpapers](https://basicappleguy.com/haberdashery/macintoshwallpapers) by Basic Apple Guy (download them yourself into `wallpapers-src/`).
+If you skip this step, the launcher uses drawn tiles and gradient wallpapers. The demo uses the [1984 Macintosh wallpapers](https://basicappleguy.com/haberdashery/macintoshwallpapers) by Basic Apple Guy. Download them yourself into `wallpapers-src/`.
 
 **7. Install**
 ```bash
 npm run deploy
 ```
 
-**8. How it stays your home screen**
-Samsung keeps Home and Back for itself, and an app can't replace its home screen. So the launcher keeps running in the background and steps back in:
-- **Leaving an app** (Home, or Back out of it) shows Samsung's home for about half a second, then the launcher.
-- **Turning the TV on** shows the TV's last input for about a second, then the launcher. If that input is empty it says "cable disconnected" (or static, for an antenna with no signal); set `idleSource` to a soundbar's ARC port and it's plain black instead.
-- **Need Samsung's home?** Press Back twice quickly on the launcher; it stays away for 2 minutes.
+**8. What to expect**
+Samsung keeps the Home and Back buttons. When you leave an app, you see Samsung's home for about half a second. Then the launcher comes back.
 
-If your TV has **Settings → General & Privacy → Start Screen Option → Autorun Last App**, turn it on too.
+When you turn on the TV, you see its last input for about a second. If nothing is connected to that input, it says "cable disconnected". An antenna with no signal shows static. If you have a soundbar on an HDMI ARC port, set `idleSource` to that port. Then the TV shows black instead.
 
-**9. Phone remote (optional, iPhone)**
-`remote/` is a small iPhone app: arrows, OK, Back, volume, mute, power (Wake-on-LAN when the TV is fully asleep), next wallpaper, and a keyboard for text boxes that use the TV's own keyboard. Its **Home** opens the launcher directly, so Samsung's home never shows at all. Needs Xcode and an Apple ID (a free one works, but the app then expires after 7 days):
+To open Samsung's home on purpose, press Back twice quickly on the launcher. The launcher then stays away for two minutes.
+
+Some TVs have **Settings → General & Privacy → Start Screen Option → Autorun Last App**. If yours does, turn it on.
+
+**9. Phone remote (optional)**
+`remote/` is an iPhone app. It has arrows, OK, Back, volume, mute, power, and a button for the next wallpaper. Its Home button opens the launcher directly, so you never see Samsung's home. It can also wake the TV with Wake-on-LAN, and it shows a keyboard when the TV asks for text.
+
+To build it, you need Xcode and an Apple ID. With a free Apple ID, the app stops working after 7 days.
 ```bash
 brew install xcodegen
 cd remote && cp Local.example.xcconfig Local.xcconfig   # your team id and bundle id
 xcodegen && open TVRemote.xcodeproj                      # run it on your iPhone
 ```
-Enter the TV's IP in the app and press **Allow** on the TV once.
+In the app, enter the TV's IP. Then press **Allow** on the TV.
 
-**No Xcode?** An iPhone Shortcut covers the one thing the TV's own remote can't do, going home without Samsung's home showing: add **Get Contents of URL** with `http://<tv-ip>:8001/api/v2/applications/TVLauncher.Launcher`, method **POST**, then put it on your Lock Screen, Action Button or Back Tap. Give the TV a fixed IP in your router first.
+If you don't want to build the app, an iPhone Shortcut can do the Home part. Add a **Get Contents of URL** action with `http://<tv-ip>:8001/api/v2/applications/TVLauncher.Launcher` and the **POST** method. Put the shortcut on your Lock Screen, Action Button, or Back Tap. Give the TV a fixed IP in your router first.
 
-## Make it yours
+## Changing it
 
-Put your changes in `launcher/config.local.js` (start from `config.local.example.js`); anything there replaces the defaults in `launcher/config.js`, which documents every option.
+Put your changes in `launcher/config.local.js`. Start from `config.local.example.js`. Anything you set there replaces the default in `launcher/config.js`. That file explains every option.
 
-- **Apps:** `npm run apps` lists installed apps and their ids for `match`.
-- **HDMI tile:** `source: 'HDMI2'` (or the input's name on the TV).
-- **Weather:** set `weather.latitude` / `longitude` (Open-Meteo, no key).
-- **Wallpaper:** changes on its own every few minutes; **CH ▲/▼** on the remote changes it now.
-- **Power-on screen:** `idleSource: 'HDMI1'` (see step 8). `returnToLauncher: false` / `launcherOnPowerOn: false` turn the stepping-back off.
-- Preview in a browser: `npm run preview`, then open http://localhost:4173.
+`npm run apps` lists the installed apps and the ids to use in `match`. For an HDMI tile, use `source: 'HDMI2'` or the input's name on the TV. For weather, set `weather.latitude` and `weather.longitude`. It uses Open-Meteo, which needs no key. The wallpaper changes every few minutes, and the remote's channel buttons change it right away. Set `returnToLauncher: false` or `launcherOnPowerOn: false` if you don't want the launcher to reopen itself.
 
-Redeploy with `npm run deploy` after any change.
+To try changes in a browser, run `npm run preview` and open http://localhost:4173. To put them on the TV, run `npm run deploy` again.
 
-## Undo
+## Removing it
 
-- Remove the launcher: TV **Apps → App Settings → Launcher → Delete**, or `~/tizen-studio/tools/ide/bin/tizen uninstall -p TVLauncher -s <tv-ip>:26101`.
-- Turn off Developer Mode the same way you turned it on (Apps → App Settings → 12345 → Off), then restart the TV. While it's on, the TV accepts app installs from your computer's IP.
+To remove the launcher, go to **Apps → App Settings → Launcher → Delete** on the TV. You can also run `~/tizen-studio/tools/ide/bin/tizen uninstall -p TVLauncher -s <tv-ip>:26101`.
 
-## Under the hood
+To turn off Developer Mode, go back to Apps → App Settings, type 12345, and switch it off. Then restart the TV. While Developer Mode is on, the TV accepts app installs from your computer.
+
+## Tools
 
 | Tool | What it does |
 |---|---|
 | `tools/tv.js` | Sends remote keys over Wi-Fi (`npm run key -- KEY_HOME`) |
-| `remote/` | iPhone remote (SwiftUI) |
+| `tools/doctor.js` | Checks each setup step (`npm run doctor`) |
 | `tools/find-tv.js` | Finds Samsung TVs on your network |
-| `tools/deploy.sh` | Packages, signs, installs and starts the launcher |
-| `tools/debug.sh` + `tv-debug.js` | Opens Chrome DevTools on the app running on the TV: run JS, take screenshots |
-| `tools/tv-test.js` | On-TV tests: ignored keys, held keys, mashing, double launch, frame timing, memory |
-| `tools/tv-capture.js` | Frame-perfect 60 fps capture from the TV (slows the UI 30x, records, retimes) |
-| `tools/tv-director.js` | Drives the TV on cue while you film it with a phone (macOS: uses `say`) |
+| `tools/deploy.sh` | Packages, signs, installs, and starts the launcher |
+| `tools/debug.sh` + `tv-debug.js` | Opens Chrome DevTools on the app on the TV |
+| `tools/tv-test.js` | Tests on the TV: keys, held keys, double launch, frame timing |
+| `tools/tv-capture.js` | Records the TV at 60 fps |
+| `tools/tv-director.js` | Drives the TV on cue while you film it |
+| `remote/` | The iPhone remote (SwiftUI) |
 
-Things we learned the hard way:
-- The stock home screen can't be screen-recorded (no shell access), so the "before" was filmed.
-- `sdb shell` answers `closed` for most commands on retail TVs. That's normal.
-- The TV's own screencast runs at ~6 fps; `tv-capture.js` gets 60 fps by slowing the UI down while recording.
+On a retail TV, `sdb shell` answers `closed` for most commands. This is normal. The TV's own screencast only runs at about 6 fps, so `tv-capture.js` slows the UI down while it records.
 
 ## Known limitations
 
-- Tested on one 2026 Samsung model (Tizen 10). Older TVs should work but haven't been tested.
-- Samsung's local API (port 8001) has no login: anything on your Wi-Fi can open apps on the TV. That's Samsung's design, not something this project adds. The phone remote pins the TV's certificate on first use and keeps its pairing token in the iPhone Keychain.
-- Samsung's home (on leaving an app) and the TV's last input (at power-on) still flash briefly; only the phone remote's Home skips them entirely. Retail TVs give apps no way to replace Samsung's home.
-- Apps with their own on-screen keyboard (YouTube, Netflix) ignore typing from the phone; use the arrows there.
-- HDMI switching uses Samsung's TV Window API; if your model lacks it, the tile shows an error.
-- Logos and wallpapers are fetched to your machine and stay the property of their owners (see `NOTICE`).
+- I only tested one 2026 Samsung model (Tizen 10).
+- You still see Samsung's home briefly when you leave an app. You also see the last input briefly when you turn on the TV. Only the phone remote's Home button avoids both.
+- YouTube and Netflix use their own on-screen keyboards. They ignore text from the phone, so use the arrows there.
+- Samsung's local API on port 8001 has no login. Anything on your Wi-Fi can open apps on the TV. That is how Samsung designed it, and the launcher can't change it. The phone remote saves the TV's certificate the first time it connects, and keeps its pairing token in the iPhone Keychain.
+- HDMI switching uses Samsung's TV Window API. If your TV doesn't have it, the tile shows an error.
+- Logos and wallpapers are downloaded to your computer and belong to their owners. See `NOTICE`.
 
 ## License
 
-MIT, see `LICENSE`. Not affiliated with Samsung, Apple or any app shown.
+MIT. See `LICENSE`. This project isn't affiliated with Samsung, Apple, or any app shown.
