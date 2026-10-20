@@ -27,12 +27,53 @@ function appId() {
   return /<tizen:application id="([^"]+)"/.exec(xml)[1];
 }
 
-module.exports = { ROOT, TIZEN, SDB, settings, appId };
+// Pairing with the TV: its token, and the fingerprint of its certificate. Readable only by you.
+const PAIRING = process.env.TV_TOKEN_FILE || path.join(ROOT, 'tv-token.json');
+// A missing file means not paired yet. A broken one is an error, so the certificate check
+// never quietly starts over.
+function readPairing() {
+  let text;
+  try { text = fs.readFileSync(PAIRING, 'utf8'); } catch (e) { if (e.code === 'ENOENT') return {}; throw e; }
+  try { return JSON.parse(text); } catch (e) { throw new Error(`${PAIRING} is unreadable. Delete it and pair again (npm run pair).`); }
+}
+function savePairing(update) {
+  fs.writeFileSync(PAIRING, JSON.stringify({ ...readPairing(), ...update }, null, 2) + '\n', { mode: 0o600 });
+  fs.chmodSync(PAIRING, 0o600);
+}
 
-// `node tools/lib.js ip|app|cert` prints a value for shell scripts
+// Opens the TV's remote-control WebSocket. The TV's certificate is self-signed, so it can't be
+// checked the usual way. Instead its fingerprint is saved the first time and must match after
+// that. The check runs before the request (which carries the token) is sent.
+function openRemote(url) {
+  const WebSocket = require('ws');
+  const tls = require('tls');
+  return new WebSocket(url, {
+    createConnection(opts, done) {
+      const socket = tls.connect({ host: opts.host, port: opts.port, rejectUnauthorized: false });
+      socket.once('error', done);
+      socket.once('secureConnect', () => {
+        const fp = socket.getPeerCertificate().fingerprint256;
+        let saved;
+        try { saved = readPairing().fp; } catch (e) { socket.destroy(); return done(e); }
+        if (saved && saved !== fp) {
+          socket.destroy();
+          return done(new Error('The TV\'s certificate changed. If you replaced the TV, delete tv-token.json and pair again.'));
+        }
+        if (!saved) savePairing({ fp });
+        done(null, socket);
+      });
+    }
+  });
+}
+
+module.exports = { ROOT, TIZEN, SDB, settings, appId, readPairing, savePairing, openRemote };
+
+// `node tools/lib.js ip|app|cert|sdb|tizen` prints a value for shell scripts
 if (require.main === module) {
   const what = process.argv[2];
   if (what === 'app') console.log(appId());
+  else if (what === 'sdb') console.log(SDB);
+  else if (what === 'tizen') console.log(TIZEN);
   else if (what === 'cert') console.log(settings().certProfile);
   else console.log(settings().ip);
 }

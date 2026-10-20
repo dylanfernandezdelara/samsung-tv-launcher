@@ -58,7 +58,7 @@ function sized(svg, width = 1000) {
 // Only plain vector markup: no scripts, styles, event handlers, embedded images or HTML, or
 // external references of any kind.
 function safe(svg) {
-  return !/<script|<style|<foreignObject|<image|\son\w+\s*=|@import|url\(|(xlink:)?href\s*=\s*["']?\s*(https?:|\/\/)/i.test(svg);
+  return !/<script|<style|<foreignObject|<image|\son\w+\s*=|@import|url\(|(xlink:)?href\s*=\s*["']?\s*(https?:|\/\/|javascript:|data:)/i.test(svg);
 }
 
 (async () => {

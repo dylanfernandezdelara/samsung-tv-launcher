@@ -121,7 +121,7 @@ To turn off Developer Mode, go back to Apps → App Settings, type 12345, and sw
 | `tools/doctor.js` | Checks each setup step (`npm run doctor`) |
 | `tools/find-tv.js` | Finds Samsung TVs on your network |
 | `tools/deploy.sh` | Packages, signs, installs, and starts the launcher |
-| `tools/debug.sh` + `tv-debug.js` | Opens Chrome DevTools on the app on the TV |
+| `tools/debug.sh` + `tv-debug.js` | Opens Chrome DevTools on the app on the TV. Run `npm run undebug` when you're done, because debug mode leaves a port open on your network. |
 | `tools/tv-test.js` | Tests on the TV: keys, held keys, double launch, frame timing |
 | `tools/tv-capture.js` | Records the TV at 60 fps |
 | `tools/tv-director.js` | Drives the TV on cue while you film it |

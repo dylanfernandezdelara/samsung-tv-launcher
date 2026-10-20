@@ -7,8 +7,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TV="$(node "$ROOT/tools/lib.js" ip):26101"
 PROFILE="$(node "$ROOT/tools/lib.js" cert)"
 APP="$(node "$ROOT/tools/lib.js" app)"
-TIZEN="$HOME/tizen-studio/tools/ide/bin/tizen"
-SDB="$HOME/tizen-studio/tools/sdb"
+TIZEN="$(node "$ROOT/tools/lib.js" tizen)"
+SDB="$(node "$ROOT/tools/lib.js" sdb)"
 BUILD="$ROOT/build"
 
 "$SDB" connect "${TV%%:*}" >/dev/null

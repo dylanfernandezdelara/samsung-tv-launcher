@@ -8,12 +8,11 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawn } = require('child_process');
-const WebSocket = require('ws');
-const { ROOT, TIZEN, settings } = require('./lib');
+const { ROOT, TIZEN, settings, openRemote, readPairing } = require('./lib');
 
 const TV_IP = settings().ip;
-if (!fs.existsSync(path.join(ROOT, 'tv-token.json'))) { console.error('Pair first: npm run pair'); process.exit(1); }
-const TOKEN = JSON.parse(fs.readFileSync(path.join(ROOT, 'tv-token.json'), 'utf8')).token;
+const TOKEN = readPairing().token;
+if (!TOKEN) { console.error('Pair first: npm run pair'); process.exit(1); }
 const NAME = Buffer.from('TVLauncherSetup').toString('base64');
 const OUT = path.join(ROOT, 'takes');
 const LEAD = 0.6;           // seconds of silence in the soundtrack before the first press
@@ -43,7 +42,7 @@ const HOLD = 3;
 
 function connect() {
   return new Promise((resolve, reject) => {
-    const ws = new WebSocket(`wss://${TV_IP}:8002/api/v2/channels/samsung.remote.control?name=${NAME}&token=${TOKEN}`, { rejectUnauthorized: false });
+    const ws = openRemote(`wss://${TV_IP}:8002/api/v2/channels/samsung.remote.control?name=${NAME}&token=${TOKEN}`);
     ws.on('message', (raw) => { if (JSON.parse(raw).event === 'ms.channel.connect') resolve(ws); });
     ws.on('error', reject);
   });

@@ -6,7 +6,7 @@ const net = require('net');
 const http = require('http');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { ROOT, TIZEN, SDB, appId } = require('./lib');
+const { ROOT, TIZEN, SDB, appId, readPairing } = require('./lib');
 
 const results = [];
 const check = (ok, step, pass, fix) => { results.push(ok); console.log(`${ok ? 'PASS' : 'FAIL'}  ${step}: ${ok ? pass : fix}`); return ok; };
@@ -47,7 +47,9 @@ function portOpen(ip, port) {
   if (!check(Boolean(d), '1. TV reachable', `${d && d.modelName} on port 8001`, `nothing answers at ${ip}:8001; is the TV on and on this Wi-Fi? Rerun \`npm run find-tv\``)) return done();
   const sameNet = mine.filter((a) => a.split('.').slice(0, 3).join('.') === ip.split('.').slice(0, 3).join('.'));
 
-  check(fs.existsSync(path.join(ROOT, 'tv-token.json')), '2. Paired', 'tv-token.json exists', 'run `npm run pair` and have the person press Allow on the TV');
+  let paired = false, pairingError = '';
+  try { paired = Boolean(readPairing().token); } catch (e) { pairingError = e.message; }
+  check(paired, '2. Paired', 'tv-token.json has a token', pairingError || 'run `npm run pair` and have the person press Allow on the TV');
 
   const devOn = d.developerMode === '1';
   const devOk = devOn && sameNet.includes(d.developerIP);

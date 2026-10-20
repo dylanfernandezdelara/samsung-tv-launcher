@@ -14,6 +14,7 @@
     "wallpapers": "node scripts/prepare-wallpapers.js",
     "deploy": "bash tools/deploy.sh",
     "debug": "bash tools/debug.sh",
+    "undebug": "bash tools/undebug.sh",
     "test-tv": "node tools/tv-test.js",
     "preview": "python3 -m http.server 4173 --directory launcher"
   },

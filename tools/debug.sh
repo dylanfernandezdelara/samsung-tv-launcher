@@ -7,7 +7,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TV="$(node "$ROOT/tools/lib.js" ip):26101"
 APP="$(node "$ROOT/tools/lib.js" app)"
-SDB="$HOME/tizen-studio/tools/sdb"
+SDB="$(node "$ROOT/tools/lib.js" sdb)"
 OUT="$(mktemp)"
 
 "$SDB" connect "${TV%%:*}" >/dev/null

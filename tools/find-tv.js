@@ -58,7 +58,8 @@ function subnets() {
   const tv = found[0];
   let file = {};
   try { file = JSON.parse(fs.readFileSync(OUT, 'utf8')); } catch (e) {}
-  fs.writeFileSync(OUT, JSON.stringify({ ...file, ip: tv.ip }, null, 2) + '\n');
+  fs.writeFileSync(OUT, JSON.stringify({ ...file, ip: tv.ip }, null, 2) + '\n', { mode: 0o600 });
+  fs.chmodSync(OUT, 0o600);
   console.log(`Saved ${tv.ip} to tv.json${found.length > 1 ? ' (edit it to pick another)' : ''}.`);
   // the address on the TV's own network is the one to type into Developer Mode
   const host = nets.filter((n) => tv.ip.startsWith(n.base + '.')).map((n) => n.mine);
