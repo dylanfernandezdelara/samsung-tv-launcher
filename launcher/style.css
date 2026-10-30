@@ -31,10 +31,10 @@ html, body {
 }
 
 /* ---------- wallpaper ---------- */
-#art { position: absolute; inset: 0; }
+#art { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 .wp {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background-size: cover;
   background-position: center;
   opacity: 0;
@@ -47,7 +47,7 @@ html, body {
 /* keeps the clock and dock readable on bright wallpapers */
 #scrim {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0) 22%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.38) 100%);
 }
 
@@ -100,14 +100,14 @@ html, body {
 }
 .platter {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   border-radius: 38px;     /* 20 + 18; DOCK_RADIUS in main.js */
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
 }
 /* frost canvases are drawn at the dock's size with rounded corners baked in (main.js) */
 .frost {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   width: 100%;
   height: 100%;
   opacity: 0;
@@ -116,7 +116,7 @@ html, body {
 .frost.on { opacity: 1; }
 .platter .tint {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   border-radius: inherit;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%);
   box-shadow:
@@ -159,7 +159,7 @@ html, body {
 }
 .face {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   border-radius: 20px;        /* reads as 18px unfocused, 20px focused */
   overflow: hidden;
   background: #22242b;
@@ -168,7 +168,7 @@ html, body {
 }
 .face .art, .face img, .face canvas {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   width: 100%;
   height: 100%;
   display: block;
@@ -177,7 +177,7 @@ html, body {
 .face .mark { right: auto; bottom: auto; }
 .face .fallback {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -189,7 +189,7 @@ html, body {
 /* moving specular highlight */
 .gloss {
   position: absolute;
-  inset: -40%;
+  top: -40%; right: -40%; bottom: -40%; left: -40%;
   background: radial-gradient(closest-side, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 70%);
   opacity: 0;
   transform: translate(-28%, -34%);
@@ -199,7 +199,7 @@ html, body {
 /* rim light: always faintly there (glass edge), brighter on focus; only opacity changes */
 .rim {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   border-radius: inherit;
   box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.24), inset 0 2px 0 rgba(255, 255, 255, 0.36);
   opacity: 0.45;
@@ -208,7 +208,7 @@ html, body {
 }
 .dim {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background: #000;
   opacity: 0.14;
   transition: opacity 300ms var(--ease);
@@ -264,7 +264,7 @@ html, body {
 
 #veil {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background: #000;
   opacity: 1;
   pointer-events: none;
