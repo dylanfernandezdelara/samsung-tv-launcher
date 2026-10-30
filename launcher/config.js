@@ -46,5 +46,6 @@ var LAUNCHER_CONFIG = {
   // App ids for other TV models, if the defaults don't match yours:
   //   samsungHomeIds: ['com.samsung.tv.csfs'],     Samsung's home
   //   inputViewerId: 'org.tizen.tv-viewer',        shows HDMI inputs
-  //   wakeScreenIds: [...]                         first screens at power-on (input viewer + home)
+  //   wakeScreenIds: [...] or 'any'                first screens at power-on (input viewer + home;
+  //                                                'any' = whatever app the TV wakes into)
 };

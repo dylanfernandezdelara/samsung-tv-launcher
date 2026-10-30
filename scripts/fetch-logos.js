@@ -56,9 +56,9 @@ function sized(svg, width = 1000) {
 }
 
 // Only plain vector markup: no scripts, styles, event handlers, embedded images or HTML, or
-// external references of any kind.
+// external references of any kind (same-document refs like url(#gradient) are fine).
 function safe(svg) {
-  return !/<script|<style|<foreignObject|<image|\son\w+\s*=|@import|url\(|(xlink:)?href\s*=\s*["']?\s*(https?:|\/\/|javascript:|data:)/i.test(svg);
+  return !/<script|<style|<foreignObject|<image|\son\w+\s*=|@import|url\((?!\s*['"]?#)|(xlink:)?href\s*=\s*["']?\s*(https?:|\/\/|javascript:|data:)/i.test(svg);
 }
 
 (async () => {
@@ -66,9 +66,10 @@ function safe(svg) {
   let ok = 0;
   for (const l of LOGOS) {
     try {
-      const svg = await get(commonsUrl(l.commons));
+      // check the recolored file, so a fix can strip a harmless <style> block first
+      const svg = l.fix(await get(commonsUrl(l.commons)));
       if (!safe(svg)) throw new Error('unexpected content, skipped');
-      fs.writeFileSync(path.join(OUT, l.out), sized(l.fix(svg)));
+      fs.writeFileSync(path.join(OUT, l.out), sized(svg));
       console.log(`  ok  ${l.out}`);
       ok++;
     } catch (e) {

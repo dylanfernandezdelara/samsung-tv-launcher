@@ -384,6 +384,7 @@
   }
 
   // ---------- prepared-logo cache (localStorage) ----------
+  // bump when the tile size in style.css changes: cached marks store pixel positions
   var MARK_CACHE_VERSION = 'm1';
   function markKey(o) {
     return 'mark:' + MARK_CACHE_VERSION + ':' + [o.icon, o.optical || 1, o.box || '', o.extract || '', o.lift || '', o.bg === 'auto' ? 'auto' : ''].join('|');
@@ -697,6 +698,7 @@
 
   function launchApp(app) {
     if (!hasTizen) { reveal(); toast('Would open ' + app.name); return; }
+    lastLaunch = Date.now();
     tizen.application.launch(app.id, null, function (e) { reveal(); toast('Could not open ' + app.name + ': ' + e.message); });
   }
 
@@ -852,9 +854,11 @@
   // background support on (config.xml), the launcher keeps checking which app is in front and,
   // when it's Samsung's home, brings itself back. Turn off with returnToLauncher: false.
   var SAMSUNG_HOME = cfg.samsungHomeIds || ['com.samsung.tv.csfs'];
-  var returnTimer = null, pauseReturnUntil = 0, lastBack = 0, lastRelaunch = 0, asleepSince = 0, wakeUntil = 0;
+  var returnTimer = null, pauseReturnUntil = 0, lastBack = 0, lastRelaunch = 0, asleepSince = 0, wakeUntil = 0, lastLaunch = 0;
   // what the TV shows when it wakes: its input viewer (static / "no signal") or Samsung's home
+  // 'any' replaces whatever app opens at power-on (e.g. Samsung TV Plus, whose id varies by model)
   var WAKE_SCREENS = cfg.wakeScreenIds || ['org.tizen.tv-viewer'].concat(SAMSUNG_HOME);
+  function isWakeScreen(id) { return WAKE_SCREENS === 'any' ? id !== selfId : WAKE_SCREENS.indexOf(id) >= 0; }
   // Escape hatch: Back twice quickly on the launcher opens Samsung's home for 2 minutes.
   function openSamsungHome() {
     pauseReturnUntil = Date.now() + 120000;
@@ -891,9 +895,11 @@
       // pressed. (A no-app blip while switching apps is much shorter than standby.)
       // Off with launcherOnPowerOn: false.
       var now = Date.now();
-      if (asleepSince && now - asleepSince > 1500 && cfg.launcherOnPowerOn !== false) wakeUntil = now + 10000;
+      // Some apps (YouTube TV, Prime Video on Tizen 5.5) show no foreground app for seconds while
+      // they load; a gap that starts soon after we opened an app is that, not standby.
+      if (asleepSince && now - asleepSince > 1500 && asleepSince - lastLaunch > 30000 && cfg.launcherOnPowerOn !== false) wakeUntil = now + 10000;
       asleepSince = 0;
-      if (now < wakeUntil && lastKey < wakeUntil - 10000 && WAKE_SCREENS.indexOf(id) >= 0 && now - lastRelaunch > 1000) {
+      if (now < wakeUntil && lastKey < wakeUntil - 10000 && isWakeScreen(id) && now - lastRelaunch > 1000) {
         lastRelaunch = now;
         try { tizen.application.launch(selfId, null, function () {}); } catch (e) {}
         return;

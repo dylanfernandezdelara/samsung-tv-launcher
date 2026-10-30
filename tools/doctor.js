@@ -70,7 +70,9 @@ function portOpen(ip, port) {
     check(profiles.split(/\s+/).includes(name), '6. Certificate', `profile "${name}"`, `no profile "${name}"; open Certificate Manager for the person (AGENTS.md step 6)`);
   } else skip('6. Certificate', 'needs Tizen tools first');
 
-  const app = await get(ip, `/api/v2/applications/${appId()}`);
+  // a missing app still answers, with a {"code":404,...} body
+  let app = await get(ip, `/api/v2/applications/${appId()}`);
+  if (app && (app.code === 404 || !app.id)) app = null;
   check(Boolean(app && app.running), '9. Launcher', `${appId()} running${app && app.visible ? ' and on screen' : ''}`,
     app ? 'installed but not running; open it from the TV\'s Apps' : 'not installed; run `npm run deploy`');
   done();

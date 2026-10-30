@@ -53,7 +53,9 @@ function target() {
     if (res.exceptionDetails) console.error(res.exceptionDetails.exception?.description || res.exceptionDetails.text);
     else console.log(typeof res.result.value === 'string' ? res.result.value : JSON.stringify(res.result.value, null, 2));
   } else if (cmd === 'shot') {
-    const res = await call('Page.captureScreenshot', { format: 'png' });
+    // older Tizen (5.5 and earlier) never answers captureScreenshot
+    const res = await Promise.race([call('Page.captureScreenshot', { format: 'png' }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('no screenshot after 15 s; this TV\'s engine may not support Page.captureScreenshot (Tizen 5.5 does not)')), 15000))]);
     fs.writeFileSync(arg || 'tv-shot.png', Buffer.from(res.data, 'base64'));
     console.log('saved', arg || 'tv-shot.png');
   } else if (cmd === 'logs') {

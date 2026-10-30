@@ -26,6 +26,9 @@
     <div id="veil"></div>
   </div>
 
+  <!-- Samsung's TV APIs: newer TVs inject them, but Tizen 5.5 only has webapis.appcommon (used
+       to return to the launcher) once this is loaded. Off the TV it's a harmless 404. -->
+  <script src="$WEBAPIS/webapis/webapis.js"></script>
   <!-- optional files: missing ones are simply skipped -->
   <script src="wallpapers/list.js"></script>
   <script src="config.js"></script>
